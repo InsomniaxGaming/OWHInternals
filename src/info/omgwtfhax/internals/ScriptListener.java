@@ -27,7 +27,7 @@ public class ScriptListener implements Listener{
 		{
 			try
 			{
-				String parsed = parse(e.getPlayer().getName(), e.getMessage());
+				String parsed = plugin.parse(e.getPlayer().getName(), e.getMessage());
 				if(parsed.equals(""))
 					e.setCancelled(true);
 				else
@@ -48,7 +48,7 @@ public class ScriptListener implements Listener{
 		{
 			try
 			{
-				String parsed = parse(e.getPlayer().getName(), e.getMessage());
+				String parsed = plugin.parse(e.getPlayer().getName(), e.getMessage());
 				if(parsed.equals("/"))
 					e.setCancelled(true);
 				else
@@ -67,7 +67,7 @@ public class ScriptListener implements Listener{
 	{
 		try
 		{
-			e.setCommand(parse(e.getSender().getName(), e.getCommand()));
+			e.setCommand(plugin.parse(e.getSender().getName(), e.getCommand()));
 		}
 		catch(Exception ex)
 		{
@@ -80,45 +80,13 @@ public class ScriptListener implements Listener{
 	public void onJoin(PlayerJoinEvent e)
 	{
 		//Add a reference to this player in the map as $playername.
-		plugin.getMappedValues().put("$"+e.getPlayer().getName(), e.getPlayer());
+		plugin.getMap().put("$"+e.getPlayer().getName(), e.getPlayer());
 	}
 	
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e)
 	{
 		//Remove player's reference from the map.
-		plugin.getMappedValues().remove("$"+e.getPlayer().getName());
+		plugin.getMap().remove("$"+e.getPlayer().getName());
 	}
-	
-	public String parse(String player, String s) throws JexlException
-	{
-		String message = s;
-		
-		int openBracketIndex = -1;
-		int closeBracketIndex = -1;
-		
-		while((openBracketIndex = message.indexOf("{>")) != -1)
-		{
-			if((closeBracketIndex = message.indexOf("<}")) > openBracketIndex)
-			{
-				String code = message.substring(openBracketIndex+2,closeBracketIndex);
-				Bukkit.getLogger().info("Parsing JEXL code issued by " + player + ": " + code);
-				
-				Object value = plugin.getEngine().createScript(code).execute(plugin.getContext());
-				
-				if(value == null)
-					value = "";
-				
-				s = s.replace("{>"+code+"<}", value.toString());
-				message = message.substring(closeBracketIndex+2);
-			}
-			else
-			{
-				break;
-			}
-		}
-		return s;
-	}
-	
-
 }
