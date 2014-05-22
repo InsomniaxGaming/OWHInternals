@@ -1,5 +1,7 @@
 package info.omgwtfhax.internals;
 
+import info.omgwtfhax.listener.ScriptListener;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +15,9 @@ import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Egg;
+import org.bukkit.entity.Snowball;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BukkitPlugin extends JavaPlugin{
@@ -22,6 +27,11 @@ public class BukkitPlugin extends JavaPlugin{
 	
 	private Vault vault;
 	
+	String ob; //Open bracket for code
+	String cb; //Close bracket for code
+	
+	Listener listener;
+	
 	public void onEnable()
 	{
 		vault = new Vault(this);		
@@ -29,6 +39,7 @@ public class BukkitPlugin extends JavaPlugin{
 		vault.setupPermissions();
 		vault.setupEconomy();
 		vault.setupChat();
+		
 		
 		values.put("System", System.class);
 		values.put("Bukkit", Bukkit.class);
@@ -43,9 +54,22 @@ public class BukkitPlugin extends JavaPlugin{
 		values.put("Instrument", org.bukkit.Instrument.class);
 		values.put("Material", Material.class);
 		values.put("this", this);
+		values.put("Egg", Egg.class);
+		values.put("Snowball", Snowball.class);
 		
-		Bukkit.getPluginManager().registerEvents(new ScriptListener(this), this);
+		listener = new ScriptListener(this);
+		Bukkit.getPluginManager().registerEvents(listener, this);
 		
+	}
+	
+	public Listener getScriptListener()
+	{
+		return listener;
+	}
+	
+	public void setScriptListener(Listener listener)
+	{
+		this.listener = listener;
 	}
 	
 	/**
@@ -76,7 +100,7 @@ public class BukkitPlugin extends JavaPlugin{
 		return jexl;
 	}
 	
-	public String parse(String player, String s) throws JexlException
+	protected String parse(String player, String s) throws JexlException
 	{
 		String message = s;
 		
@@ -104,6 +128,27 @@ public class BukkitPlugin extends JavaPlugin{
 			}
 		}
 		return s;
+	}
+	
+	public String syncParse(String player, String s)
+	{
+		ScriptRunnable runnable = new ScriptRunnable(this,player,s);
+		Bukkit.getScheduler().scheduleSyncDelayedTask(this, runnable);
+		
+		synchronized(this)
+		{
+			while(runnable.getResult() == null)
+			{
+				try
+				{
+					wait();
+				} catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		return runnable.getResult().toString();
 	}
 
 }

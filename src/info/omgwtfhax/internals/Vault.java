@@ -38,6 +38,11 @@ public class Vault {
 		PERMISSION_NODE_ADMINISTRATOR = BASE_NODE + ".administrator";
 	}
 	
+	public static synchronized boolean has(Player player, String perm)
+	{
+		return permission.has(player, perm);
+	}
+	
 	/**
 	 * Initialization method to setup the permissions for this plugin. Must be executed prior to using any permission checking methods.
 	 * */

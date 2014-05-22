@@ -1,7 +1,8 @@
-package info.omgwtfhax.internals;
+package info.omgwtfhax.listener;
 
-import org.apache.commons.jexl2.JexlException;
-import org.bukkit.Bukkit;
+import info.omgwtfhax.internals.BukkitPlugin;
+import info.omgwtfhax.internals.Vault;
+
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -23,11 +24,12 @@ public class ScriptListener implements Listener{
 	@EventHandler (priority = EventPriority.HIGH)
 	public void onChat(AsyncPlayerChatEvent e)
 	{
-		if(Vault.permission.has(e.getPlayer(), Vault.getAdminNode()))
+		if(Vault.has(e.getPlayer(), Vault.getAdminNode()))
 		{
 			try
 			{
-				String parsed = plugin.parse(e.getPlayer().getName(), e.getMessage());
+				
+				String parsed = plugin.syncParse(e.getPlayer().getName(), e.getMessage());
 				if(parsed.equals(""))
 					e.setCancelled(true);
 				else
@@ -44,11 +46,11 @@ public class ScriptListener implements Listener{
 	@EventHandler (priority = EventPriority.HIGH)
 	public void onCommand(PlayerCommandPreprocessEvent e)
 	{
-		if(Vault.permission.has(e.getPlayer(), Vault.getAdminNode()))
+		if(Vault.has(e.getPlayer(), Vault.getAdminNode()))
 		{
 			try
 			{
-				String parsed = plugin.parse(e.getPlayer().getName(), e.getMessage());
+				String parsed = plugin.syncParse(e.getPlayer().getName(), e.getMessage());
 				if(parsed.equals("/"))
 					e.setCancelled(true);
 				else
@@ -67,7 +69,7 @@ public class ScriptListener implements Listener{
 	{
 		try
 		{
-			e.setCommand(plugin.parse(e.getSender().getName(), e.getCommand()));
+			e.setCommand(plugin.syncParse(e.getSender().getName(), e.getCommand()));
 		}
 		catch(Exception ex)
 		{

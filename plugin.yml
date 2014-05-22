@@ -1,6 +1,6 @@
 main: info.omgwtfhax.internals.BukkitPlugin
 name: OWHInternals
-version: 0.1
+version: 1.1.0
 description: "A plugin for scripting at runtime"
 author: 10102
 softdepend: [Vault]
