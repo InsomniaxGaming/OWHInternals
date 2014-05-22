@@ -1,5 +1,7 @@
 package info.omgwtfhax.internals;
 
+import org.bukkit.Bukkit;
+
 public class ScriptRunnable implements Runnable{
 	
 	BukkitPlugin plugin;
@@ -19,10 +21,15 @@ public class ScriptRunnable implements Runnable{
 	public void run() {		
 		synchronized(plugin)
 		{
-			result = plugin.parse(player, code);	
-		
-			if(result == null)
+			try
+			{
+			result = plugin.parse(player, code);
+			}
+			catch(Exception e)
+			{
+				Bukkit.getPlayer(player).sendMessage(e.getMessage());
 				result = "";
+			}
 			
 			plugin.notifyAll();
 		}

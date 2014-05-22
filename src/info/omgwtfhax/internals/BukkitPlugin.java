@@ -27,13 +27,17 @@ public class BukkitPlugin extends JavaPlugin{
 	
 	private Vault vault;
 	
-	String ob; //Open bracket for code
-	String cb; //Close bracket for code
+	String bracketRegex = "[\\{\\}\\<\\>.\\[\\]\\(\\);*/%+-]{1}";
+	
+	String openBracket; //Open bracket for code
+	String closeBracket; //Close bracket for code
 	
 	Listener listener;
 	
 	public void onEnable()
 	{
+		this.saveDefaultConfig();
+		
 		vault = new Vault(this);		
 		
 		vault.setupPermissions();
@@ -60,6 +64,45 @@ public class BukkitPlugin extends JavaPlugin{
 		listener = new ScriptListener(this);
 		Bukkit.getPluginManager().registerEvents(listener, this);
 		
+		this.setOpenBracket(getConfig().getString("openbracket"));
+		this.setCloseBracket(getConfig().getString("closebracket"));
+		
+	}
+	
+	public void setOpenBracket(String bracket)
+	{
+		if(bracket.matches(bracketRegex))
+		{
+			this.getLogger().warning("Opening bracket '"+bracket+"' is already in use by the java compiler. Falling back to '{>' to avoid conflict.");
+			this.openBracket = "{>";
+		}
+		else
+		{
+			this.openBracket = bracket;
+		}
+	}
+	
+	public void setCloseBracket(String bracket)
+	{
+		if(bracket.matches(bracketRegex))
+		{
+			this.getLogger().warning("Closing bracket '"+bracket+"' is already in use by the java compiler. Falling back to '<}' to avoid conflict.");
+			this.closeBracket = "<}";
+		}
+		else
+		{
+			this.closeBracket = bracket;
+		}
+	}
+	
+	public String getOpenBracket()
+	{
+		return this.openBracket;
+	}
+	
+	public String getCloseBracket()
+	{
+		return this.closeBracket;
 	}
 	
 	public Listener getScriptListener()
@@ -90,6 +133,11 @@ public class BukkitPlugin extends JavaPlugin{
 		return values;
 	}
 	
+	public void add(String key, Object value)
+	{
+		getMap().put(key, value);
+	}
+	
 	/**
 	 * Retrieves this plugin's JexlEngine. There is nothing special about it.
 	 * 
@@ -107,19 +155,21 @@ public class BukkitPlugin extends JavaPlugin{
 		int openBracketIndex = -1;
 		int closeBracketIndex = -1;
 		
-		while((openBracketIndex = message.indexOf("{>")) != -1)
+		while((openBracketIndex = message.indexOf(openBracket)) != -1)
 		{
-			if((closeBracketIndex = message.indexOf("<}")) > openBracketIndex)
+			if((closeBracketIndex = message.indexOf(closeBracket)) > openBracketIndex)
 			{
 				String code = message.substring(openBracketIndex+2,closeBracketIndex);
 				Bukkit.getLogger().info("Parsing JEXL code issued by " + player + ": " + code);
 				
-				Object value = getEngine().createScript(code).execute(getContext());
+				Object value;
+				
+				value = getEngine().createScript(code).execute(getContext());
 				
 				if(value == null)
 					value = "";
 				
-				s = s.replace("{>"+code+"<}", value.toString());
+				s = s.replace(openBracket+code+closeBracket, value.toString());
 				message = message.substring(closeBracketIndex+2);
 			}
 			else
