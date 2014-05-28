@@ -25,29 +25,22 @@ public class BukkitPlugin extends JavaPlugin{
 	private JexlEngine jexl = new JexlEngine();
 	private Map<String,Object> values = new HashMap<String, Object>();
 	
-	private Vault vault;
-	
 	String bracketRegex = "[\\{\\}\\<\\>.\\[\\]\\(\\);*/%+-]{1}";
 	
 	String openBracket; //Open bracket for code
 	String closeBracket; //Close bracket for code
-	
+
+	String BASE_NODE;
+	String PERMISSION_NODE_ADMINISTRATOR;
+
 	Listener listener;
 	
 	public void onEnable()
 	{
 		this.saveDefaultConfig();
-		
-		vault = new Vault(this);		
-		
-		vault.setupPermissions();
-		vault.setupEconomy();
-		vault.setupChat();
-		
-		
+
 		values.put("System", System.class);
 		values.put("Bukkit", Bukkit.class);
-		values.put("vault", vault);
 		values.put("logger", this.getLogger());
 		values.put("String", String.class);
 		values.put("StringUtils", StringUtils.class);
@@ -60,7 +53,10 @@ public class BukkitPlugin extends JavaPlugin{
 		values.put("this", this);
 		values.put("Egg", Egg.class);
 		values.put("Snowball", Snowball.class);
-		
+
+		BASE_NODE = getName().replace(" ", "").toLowerCase();
+		PERMISSION_NODE_ADMINISTRATOR = BASE_NODE + ".administrator";
+
 		listener = new ScriptListener(this);
 		Bukkit.getPluginManager().registerEvents(listener, this);
 		
@@ -201,4 +197,7 @@ public class BukkitPlugin extends JavaPlugin{
 		return runnable.getResult().toString();
 	}
 
+	public String getAdminNode() {
+		return PERMISSION_NODE_ADMINISTRATOR;
+	}
 }

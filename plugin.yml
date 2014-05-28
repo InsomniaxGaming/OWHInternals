@@ -3,4 +3,3 @@ name: OWHInternals
 version: 1.1.0
 description: "A plugin for scripting at runtime"
 author: 10102
-softdepend: [Vault]
