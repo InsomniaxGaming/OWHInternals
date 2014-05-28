@@ -1,7 +1,6 @@
 package info.omgwtfhax.listener;
 
 import info.omgwtfhax.internals.BukkitPlugin;
-import info.omgwtfhax.internals.Vault;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -24,7 +23,7 @@ public class ScriptListener implements Listener{
 	@EventHandler (priority = EventPriority.HIGH)
 	public void onChat(AsyncPlayerChatEvent e)
 	{
-		if(Vault.has(e.getPlayer(), Vault.getAdminNode()))
+		if(e.getPlayer().hasPermission(plugin.getAdminNode()))
 		{
 			try
 			{
@@ -46,7 +45,7 @@ public class ScriptListener implements Listener{
 	@EventHandler (priority = EventPriority.HIGH)
 	public void onCommand(PlayerCommandPreprocessEvent e)
 	{
-		if(Vault.has(e.getPlayer(), Vault.getAdminNode()))
+		if(e.getPlayer().hasPermission(plugin.getAdminNode()))
 		{
 			try
 			{
